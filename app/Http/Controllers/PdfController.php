@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use Barryvdh\DomPDF\Facade\Pdf as DomPDF;
-use League\Glide\Filesystem\FileNotFoundException;
-use Spatie\Image\Exceptions\InvalidImageDriver;
-use Spatie\Image\Exceptions\InvalidManipulation;
-use Spatie\Image\Image;
+use Intervention\Image\Facades\Image;
 use Spatie\PdfToImage\Exceptions\InvalidFormat;
 use Spatie\PdfToImage\Exceptions\PdfDoesNotExist;
 use Spatie\PdfToImage\Pdf;
@@ -39,17 +36,18 @@ class PdfController extends Controller
         }
         $images = \File::AllFiles($outputFilePath);
         foreach ($images as $imageFile) {
-            $image = Image::load($imageFile);
-            try {
-                $image->useImageDriver('imagick');
-                $image->watermark(public_path('watermark.png')) // Replace with your watermark image
-                ->watermarkOpacity(50) // Adjust the opacity of the watermark
-                ->watermarkPosition('bottom-right')
-                    ->watermarkPadding(10, 10);
-                $image->save();
-            } catch (InvalidManipulation|FileNotFoundException|InvalidImageDriver  $e) {
-                dd($e->getMessage());
-            }
+            $image = Image::make($imageFile);
+            $centerX = $image->getWidth() / 2;
+            $centerY = $image->getHeight() / 2;
+            $image->text('UP State Archives', $centerX, $centerY, function ($font) {
+                $font->file(public_path('fonts/Roboto/Roboto-Regular.ttf'));
+                $font->size(150);
+                $font->align('center');
+                $font->angle(45);
+                $font->valign('bottom');
+                $font->color([0, 0, 0, 0.2]);
+            });
+            $image->save($imageFile);
         }
 
         $dompdf = DomPDF::loadView('image_to_pdf', compact('images'));
@@ -63,9 +61,7 @@ class PdfController extends Controller
         $dompdf->setOption('isHtml5ParserEnabled', true);
         $dompdf->save(public_path('uploads/'.$pdfFileName));
 
-        if (file_exists($outputFilePath)) {
-            \File::deleteDirectory($outputFilePath);
-        }
+        \File::deleteDirectory($outputFilePath);
         return redirect('/uploads/'.$pdfFileName);
     }
 

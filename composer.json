@@ -8,10 +8,10 @@
         "php": "^8.1",
         "barryvdh/laravel-dompdf": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
+        "intervention/image": "^2.7",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
-        "spatie/image": "^2.2",
         "spatie/pdf-to-image": "^2.2"
     },
     "require-dev": {
