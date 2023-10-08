@@ -16,3 +16,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+// routes/web.php
+Route::get('/add-watermark', [\App\Http\Controllers\PdfController::class,'uploadForm']);
+Route::post('/generate-pdf', [\App\Http\Controllers\PdfController::class,'addWatermark'])->name('generate-pdf') ;
